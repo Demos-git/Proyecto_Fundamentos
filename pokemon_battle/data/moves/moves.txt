@@ -1,0 +1,21 @@
+# Nombre;Tipo;Categoria;Poder;Precision;PP
+Lanzallamas;Fuego;Especial;90;100;15
+Latigo Cepa;Planta;Fisico;45;100;25
+Pistola Agua;Agua;Especial;40;100;25
+Impactrueno;Electrico;Especial;40;100;30
+Mordisco;Siniestro;Fisico;60;100;25
+Ataque Roca;Roca;Fisico;50;90;15
+Psicorrayo;Psiquico;Especial;65;100;20
+Cuchillada;Normal;Fisico;70;100;20
+Bola Sombra;Fantasma;Especial;80;100;15
+Rayo Hielo;Hielo;Especial;90;100;10
+Tajo Aereo;Volador;Fisico;60;95;25
+Tóxico;Veneno;Estado;0;90;10
+Pantalla de Humo;Normal;Estado;0;100;20
+Garra Metal;Acero;Fisico;50;95;35
+Cabezazo;Normal;Fisico;70;100;15
+Rayo Solar;Planta;Especial;120;100;10
+Hidrobomba;Agua;Especial;110;80;5
+Trueno;Electrico;Especial;110;70;10
+Llamarada;Fuego;Especial;110;85;5
+Terratemblor;Tierra;Fisico;100;100;10
