@@ -1,7 +1,0 @@
-# Nombre;Tipo1;Tipo2;HP;Atk;Def;SpAtk;SpDef;Spd;Movimientos;ArtFile
-Charizard;Fuego;Volador;156;130;111;159;111;150;Lanzallamas,Cuchillada,Tajo Aereo,Llamarada;assets/art/charizard.txt
-Blastoise;Agua;Ninguno;164;138;164;141;154;120;Hidrobomba,Ataque Roca,Cabezazo,Pistola Agua;assets/art/blastoise.txt
-Venusaur;Planta;Veneno;160;132;142;142;150;120;Latigo Cepa,Rayo Solar,Tóxico,Cabezazo;assets/art/venusaur.txt
-Pikachu;Electrico;Ninguno;110;112;83;112;102;180;Impactrueno,Trueno,Cuchillada,Cabezazo;assets/art/pikachu.txt
-Gengar;Fantasma;Veneno;108;104;86;162;106;164;Bola Sombra,Tóxico,Psicorrayo,Mordisco;assets/art/gengar.txt
-Tyranitar;Roca;Siniestro;200;202;168;146;150;130;Ataque Roca,Mordisco,Terratemblor,Cuchillada;assets/art/tyranitar.txt
