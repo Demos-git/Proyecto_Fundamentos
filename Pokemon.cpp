@@ -18,7 +18,7 @@ enum class Type {
     NORMAL, FUEGO, AGUA, PLANTA, ELECTRICO,
     HIELO, LUCHA, VENENO, TIERRA, VOLADOR,
     PSIQUICO, BICHO, ROCA, FANTASMA, DRAGON,
-    SINIESTRO, ACERO, NINGUNO
+    SINIESTRO, ACERO, HADA, NINGUNO
 };
 
 string typeToString(Type t) {
@@ -40,6 +40,7 @@ string typeToString(Type t) {
         case Type::DRAGON:    return "Dragon";
         case Type::SINIESTRO: return "Siniestro";
         case Type::ACERO:     return "Acero";
+        case Type::HADA:      return "Hada";
         default:              return "---";
     }
 }
@@ -59,7 +60,7 @@ public:
     }
 
 private:
-    float chart[18][18];
+    float chart[19][19];
 
     TypeChart() {
         for (auto& row : chart)
@@ -135,6 +136,12 @@ private:
         set(Type::ACERO, Type::HIELO, 2.0f);     set(Type::ACERO, Type::ROCA, 2.0f);
         set(Type::ACERO, Type::FUEGO, 0.5f);     set(Type::ACERO, Type::AGUA, 0.5f);
         set(Type::ACERO, Type::ELECTRICO, 0.5f); set(Type::ACERO, Type::ACERO, 0.5f);
+
+        set(Type::HADA, Type::DRAGON, 2.0f);     set(Type::HADA, Type::LUCHA, 2.0f);
+        set(Type::HADA, Type::SINIESTRO, 2.0f);   set(Type::HADA, Type::VENENO, 0.5f);
+        set(Type::HADA, Type::ACERO, 0.5f);      set(Type::DRAGON, Type::HADA, 0.5f);
+        set(Type::LUCHA, Type::HADA, 0.5f);      set(Type::SINIESTRO, Type::HADA, 0.5f);
+        set(Type::VENENO, Type::HADA, 2.0f);     set(Type::ACERO, Type::HADA, 2.0f);
     }
 
     void set(Type atk, Type def, float val) { chart[idx(atk)][idx(def)] = val; }
@@ -269,6 +276,26 @@ vector<Pokemon> buildPokemonPool(const vector<Move>& mp) {
             {findMove(mp,"Rayo Hielo"), findMove(mp,"Hidrobomba"), findMove(mp,"Cabezazo"), findMove(mp,"Proteccion")}},
         {"Steelix", Type::ACERO, Type::TIERRA, {170,180,260,110,140,90}, 170, 170,
             {findMove(mp,"Garra Metal"), findMove(mp,"Terratemblor"), findMove(mp,"Ataque Roca"), findMove(mp,"Cuchillada")}},
+        {"Dragonite", Type::DRAGON, Type::VOLADOR, {182,160,150,140,150,130}, 182, 182,
+            {findMove(mp,"Tajo Aereo"), findMove(mp,"Rayo Hielo"), findMove(mp,"Cuchillada"), findMove(mp,"Ataque Rapido")}},
+        {"Alakazam", Type::PSIQUICO, Type::NINGUNO, {135,50,45,175,95,150}, 135, 135,
+            {findMove(mp,"Psicorrayo"), findMove(mp,"Cuchillada"), findMove(mp,"Proteccion"), findMove(mp,"Ataque Rapido")}},
+        {"Scizor", Type::BICHO, Type::ACERO, {170,170,140,100,120,120}, 170, 170,
+            {findMove(mp,"Garra Metal"), findMove(mp,"Ataque Roca"), findMove(mp,"Cuchillada"), findMove(mp,"Proteccion")}},
+        {"Jolteon", Type::ELECTRICO, Type::NINGUNO, {130,110,80,135,95,190}, 130, 130,
+            {findMove(mp,"Trueno"), findMove(mp,"Impactrueno"), findMove(mp,"Ataque Rapido"), findMove(mp,"Proteccion")}},
+        {"Snorlax", Type::NORMAL, Type::NINGUNO, {250,160,110,70,110,70}, 250, 250,
+            {findMove(mp,"Cabezazo"), findMove(mp,"Cuchillada"), findMove(mp,"Proteccion"), findMove(mp,"Ataque Rapido")}},
+        {"Gyarados", Type::AGUA, Type::VOLADOR, {190,180,150,100,130,150}, 190, 190,
+            {findMove(mp,"Hidrobomba"), findMove(mp,"Tajo Aereo"), findMove(mp,"Mordisco"), findMove(mp,"Ataque Rapido")}},
+        {"Arcanine", Type::FUEGO, Type::NINGUNO, {170,180,120,110,100,130}, 170, 170,
+            {findMove(mp,"Lanzallamas"), findMove(mp,"Llamarada"), findMove(mp,"Cabezazo"), findMove(mp,"Proteccion")}},
+        {"Gardevoir", Type::PSIQUICO, Type::HADA, {150,70,85,170,110,120}, 150, 150,
+            {findMove(mp,"Psicorrayo"), findMove(mp,"Rayo Solar"), findMove(mp,"Proteccion"), findMove(mp,"Ataque Rapido")}},
+        {"Rhydon", Type::TIERRA, Type::ROCA, {180,190,170,75,80,80}, 180, 180,
+            {findMove(mp,"Terratemblor"), findMove(mp,"Ataque Roca"), findMove(mp,"Cuchillada"), findMove(mp,"Proteccion")}},
+        {"Scyther", Type::BICHO, Type::VOLADOR, {140,180,90,80,80,170}, 140, 140,
+            {findMove(mp,"Tajo Aereo"), findMove(mp,"Garra Metal"), findMove(mp,"Cuchillada"), findMove(mp,"Ataque Rapido")}},
     };
 }
 
@@ -295,7 +322,7 @@ Trainer generarEquipoAleatorio(const string& nombre, const vector<Pokemon>& pool
 // ============================================================
 
 void elegirPokemonActivoJugador(Trainer& jugador) {
-    cout << "\n=== Elige tu Pokemon activo ===\n";
+    cout << "\n=== Elige tu primer Pokemon ===\n";
     for (size_t i = 0; i < jugador.team.size(); ++i)
         cout << "  " << (i + 1) << ". " << jugador.team[i].name
                   << " [" << typeToString(jugador.team[i].type1) << "]\n";
@@ -303,16 +330,59 @@ void elegirPokemonActivoJugador(Trainer& jugador) {
     int choice;
     while (true) {
         cout << "Opcion: ";
-        cin >> choice;
+        if (!(cin >> choice)) {
+            // entrada no numerica: limpiar y permitir reintento
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Opción invalida. Intentalo de nuevo.\n";
+            continue;
+        }
         choice--;
         if (choice >= 0 && choice < static_cast<int>(jugador.team.size())) break;
-        cout << "Seleccion invalida.\n";
+        cout << "Opción invalida. Intentalo de nuevo.\n";
     }
     jugador.active = choice;
 }
 
 void elegirPokemonActivoIA(Trainer& ia) {
     ia.active = 0; // la IA simplemente envia su primer Pokemon
+    cout << "La IA ha escogido a " << ia.activePokemon().name;
+    if (ia.activePokemon().type2 != Type::NINGUNO) {
+        cout << " [" << typeToString(ia.activePokemon().type1)
+             << "/" << typeToString(ia.activePokemon().type2) << "]";
+    } else {
+        cout << " [" << typeToString(ia.activePokemon().type1) << "]";
+    }
+    cout << "\n";
+}
+
+void elegirPokemonSustitutoJugador(Trainer& jugador) {
+    cout << "\n=== Elige tu siguiente Pokémon ===\n";
+    vector<int> disponibles;
+    for (size_t i = 0; i < jugador.team.size(); ++i) {
+        if (!jugador.team[i].isFainted()) {
+            disponibles.push_back(static_cast<int>(i));
+            cout << "  " << (disponibles.size()) << ". " << jugador.team[i].name
+                 << " [" << typeToString(jugador.team[i].type1) << "]\n";
+        }
+    }
+
+    int choice;
+    while (true) {
+        cout << "Opcion: ";
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Opción invalida. Intentalo de nuevo.\n";
+            continue;
+        }
+        choice--;
+        if (choice >= 0 && choice < static_cast<int>(disponibles.size())) {
+            jugador.active = disponibles[choice];
+            break;
+        }
+        cout << "Opción invalida. Intentalo de nuevo.\n";
+    }
 }
 
 // ============================================================
@@ -325,7 +395,7 @@ int seleccionarAtaqueJugador(const Pokemon& activo) {
         const auto& m = activo.moves[i];
         cout << "  " << (i + 1) << ". " << m.name
                   << " [" << typeToString(m.type) << "]"
-                  << " Poder:" << m.power << " Precision:" << m.accuracy << "\n";
+                  << " Poder:" << m.power << " Precisión:" << m.accuracy << "\n";
     }
     int choice;
     while (true) {
@@ -333,7 +403,7 @@ int seleccionarAtaqueJugador(const Pokemon& activo) {
         cin >> choice;
         choice--;
         if (choice >= 0 && choice < static_cast<int>(activo.moves.size())) return choice;
-        cout << "Seleccion invalida.\n";
+        cout << "Opción invalida.\n";
     }
 }
 
@@ -403,7 +473,7 @@ void resolverAtaque(Trainer& atacante, Trainer& defensor, int moveIndex) {
     }
 
     def.takeDamage(dmg);
-    cout << def.name << " recibio " << dmg << " de dano. ";
+    cout << def.name << " recibio " << dmg << " de daño. ";
     def.displayHPBar();
 }
 
@@ -515,7 +585,7 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
 
     cout << "============================================\n";
-    cout << "     POKEMON STADIUM - BATALLA (1 ARCHIVO)\n";
+    cout << "     POKEMON STADIUM - BATALLA \n";
     cout << "============================================\n";
 
     auto movePool = buildMovePool();
@@ -527,9 +597,9 @@ int main() {
         Trainer jugador = generarEquipoAleatorio("Jugador", pokePool);
         Trainer ia      = generarEquipoAleatorio("IA", pokePool);
 
-        cout << "\nTu equipo generado:\n";
+        cout << "\nTu equipo:\n";
         for (auto& p : jugador.team) cout << "  - " << p.name << "\n";
-        cout << "\nEquipo de la IA generado:\n";
+        cout << "\nEquipo IA:\n";
         for (auto& p : ia.team) cout << "  - " << p.name << "\n";
 
         // Elegir Pokemon activo (Jugador) / (IA)
